@@ -1,36 +1,38 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Wavelength
 
-## Getting Started
+A group chat that shows the room finding its frequency. Live AI (Meta Muse Spark) reads the
+conversation and surfaces who is clicking, what they share, and who could use a way in.
 
-First, run the development server:
+Built for Meta's "Bringing People Closer Together with AI" hackathon.
+
+## Demo flow for judges
+
+1. Presenter opens a room on the laptop and clicks the room code to show the QR.
+2. Judges scan it on their phones, type a first name, and start talking.
+3. Every four messages (or on "Read the room") Muse analyzes the chat and the graph updates:
+   - waves between people grow and warm from violet to aqua to amber as bonds strengthen
+   - bridge suggestions call out specific shared ground
+   - inclusion notes flag anyone who has gone quiet
+   - the vibe gauge tracks the group's overall connection
+
+## Run it
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local   # add your Muse key
+npm run dev                  # Next on :3000, socket server on :3001
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Phones must be on the same Wi-Fi as the laptop. Open `http://<laptop-lan-ip>:3000`, not
+`localhost`, before showing the QR so the code encodes an address phones can reach.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Budget guard
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Muse always spends reasoning tokens, so the server caps thinking at 1024 tokens, analyzes at
+most once per 8 seconds per room, and stops after `MAX_ANALYSES` calls (see `.env.local`).
+`GET http://localhost:3001` reports how many analyses have been used.
 
-## Learn More
+## Stack
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Next.js 16, Framer Motion, D3 force layout, Socket.io, Zustand, Meta Muse via the
+Anthropic-compatible API.

@@ -3,24 +3,36 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "concurrently -n web,socket -c cyan,magenta \"next dev -H 0.0.0.0\" \"tsx watch --env-file=.env.local server.ts\"",
+    "dev:next": "next dev -H 0.0.0.0",
+    "dev:socket": "tsx watch --env-file=.env.local server.ts",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.128.0",
+    "@types/d3": "^7.4.3",
+    "d3": "^7.9.0",
+    "framer-motion": "^13.4.4",
     "next": "16.3.6",
+    "qrcode.react": "^4.2.0",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "socket.io": "^4.8.4",
+    "socket.io-client": "^4.8.4",
+    "zustand": "^5.0.15"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "concurrently": "^10.0.5",
     "eslint": "^9",
     "eslint-config-next": "16.3.6",
     "tailwindcss": "^4",
+    "tsx": "^4.23.15",
     "typescript": "^5"
   }
 }

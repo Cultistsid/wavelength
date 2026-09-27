@@ -1,69 +1,76 @@
-import Image from "next/image";
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
+
+const newRoomId = () => Math.random().toString(36).slice(2, 8).toUpperCase();
 
 export default function Home() {
+  const router = useRouter();
+  const [code, setCode] = useState('');
+
+  const join = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (code.trim().length >= 4) router.push(`/room/${code.trim().toUpperCase()}`);
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <main className="min-h-screen flex flex-col">
+      <section className="relative flex-1 flex flex-col justify-center px-6 py-16 max-w-3xl mx-auto w-full">
+        <motion.svg
+          viewBox="0 0 960 160"
+          preserveAspectRatio="none"
+          className="fixed left-0 right-0 top-1/2 -translate-y-1/2 w-screen h-56 pointer-events-none"
+          aria-hidden
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1.2 }}
+        >
+          <path className="wave-line" d="M0 80 C 80 20, 160 20, 240 80 S 400 140, 480 80 S 640 20, 720 80 S 880 140, 960 80" fill="none" stroke="var(--accent)" strokeWidth="3" style={{ filter: 'drop-shadow(0 0 6px var(--accent))' }} />
+          <path className="wave-line" d="M0 80 C 100 130, 200 130, 300 80 S 500 30, 600 80 S 800 130, 900 80 S 1000 40, 1060 80" fill="none" stroke="var(--aqua)" strokeWidth="3" style={{ animationDelay: '-2s', filter: 'drop-shadow(0 0 6px var(--aqua))' }} />
+          <path className="wave-line" d="M0 80 C 60 50, 120 50, 180 80 S 300 110, 360 80 S 480 50, 540 80 S 660 110, 720 80 S 840 50, 900 80 S 1000 110, 1060 80" fill="none" stroke="var(--amber)" strokeWidth="2.5" style={{ animationDelay: '-4s', filter: 'drop-shadow(0 0 6px var(--amber))' }} />
+        </motion.svg>
+
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
+          className="relative"
+        >
+          <h1 className="text-6xl sm:text-7xl font-semibold tracking-tight">Wavelength</h1>
+          <p className="mt-5 max-w-md text-lg text-[var(--muted)] leading-relaxed">
+            A group chat that shows the room finding its frequency. Live AI spots who is
+            clicking, what they share, and who could use a way in.
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+
+          <div className="mt-12 flex flex-col sm:flex-row gap-3 sm:items-stretch">
+            <button
+              onClick={() => router.push(`/room/${newRoomId()}`)}
+              className="rounded-xl bg-[var(--accent)] px-6 py-4 text-base font-medium text-white hover:brightness-110 active:scale-[0.99] transition"
+            >
+              Start a room
+            </button>
+            <form onSubmit={join} className="flex flex-1 rounded-xl bg-[var(--surface)] ring-1 ring-white/10 focus-within:ring-2 focus-within:ring-[var(--accent)] transition-shadow">
+              <input
+                value={code}
+                onChange={(e) => setCode(e.target.value.toUpperCase())}
+                placeholder="Room code"
+                maxLength={6}
+                autoComplete="off"
+                className="flex-1 min-w-0 bg-transparent px-5 py-4 text-base tracking-[0.25em] uppercase placeholder:tracking-normal placeholder:normal-case placeholder:text-[var(--muted)]/70 outline-none"
+              />
+              <button type="submit" className="px-5 text-sm text-[var(--muted)] hover:text-white transition-colors">
+                Join
+              </button>
+            </form>
+          </div>
+        </motion.div>
+      </section>
+
+      <footer className="px-6 py-6 text-center text-xs text-[var(--muted)]">
+        Built for Meta&apos;s Bringing People Closer Together with AI hackathon, powered by Muse Spark.
+      </footer>
+    </main>
   );
 }
