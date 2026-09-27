@@ -10,6 +10,7 @@ export interface Place {
   kind: string;
   website: string | null;
   distanceMi: number;
+  why: string;
 }
 
 interface TopicRule {
@@ -68,38 +69,38 @@ interface OverpassElement {
 
 // Curated Atlanta spots (coordinates approximate to the block) so a plan always lands
 // even when public Overpass is slow or down during the demo.
-type Curated = [name: string, lat: number, lon: number, street: string, kinds: string];
+type Curated = [name: string, lat: number, lon: number, street: string, kinds: string, why: string];
 const CURATED: Curated[] = [
-  ['Ton Ton Ramen', 33.7726, -84.3655, '675 Ponce De Leon Ave NE', 'noodles sushi'],
-  ['Food Terminal', 33.7788, -84.4102, '1000 Marietta St NW', 'noodles'],
-  ['Antico Pizza Napoletana', 33.7832, -84.4053, '1093 Hemphill Ave NW', 'pizza'],
-  ['Superica Krog Street', 33.7566, -84.3640, '99 Krog St NE', 'tacos'],
-  ['Fox Bros Bar-B-Q', 33.7595, -84.3459, '1238 DeKalb Ave NE', 'bbq and wings'],
-  ['Hattie B\'s Hot Chicken', 33.7645, -84.3496, '299 Moreland Ave NE', 'bbq and wings'],
-  ['The Vortex Midtown', 33.7803, -84.3835, '878 Peachtree St NE', 'burgers'],
-  ['Dancing Goats Coffee Bar', 33.7723, -84.3660, '650 North Ave NE', 'coffee'],
-  ['Chrome Yellow Trading Co', 33.7548, -84.3722, '501 Edgewood Ave SE', 'coffee'],
-  ['Ladybird Grove & Mess Hall', 33.7597, -84.3577, '684 John Wesley Dobbs Ave NE', 'drinks'],
-  ['Jeni\'s Splendid Ice Creams', 33.7847, -84.4118, '1198 Howell Mill Rd NW', 'sweets'],
-  ['Georgia Tech CRC Climbing Wall', 33.7755, -84.4034, '750 Ferst Dr NW', 'climbing gym'],
-  ['Piedmont Park', 33.7851, -84.3738, '400 Park Dr NE', 'park sports'],
-  ['Atlanta BeltLine Eastside Trail', 33.7700, -84.3630, 'Ponce De Leon Ave NE', 'park'],
-  ['High Museum of Art', 33.7901, -84.3856, '1280 Peachtree St NE', 'art and photo spots'],
-  ['Jackson Street Bridge', 33.7620, -84.3736, 'Jackson St NE', 'art and photo spots'],
-  ['A Cappella Books', 33.7597, -84.3540, '208 Haralson Ave NE', 'bookstore'],
-  ['Joystick Gamebar', 33.7548, -84.3735, '427 Edgewood Ave SE', 'games'],
-  ['Variety Playhouse', 33.7645, -84.3496, '1099 Euclid Ave NE', 'music'],
-  ['Criminal Records', 33.7645, -84.3500, '1154 Euclid Ave NE', 'music'],
-  ['Plaza Theatre', 33.7728, -84.3550, '1049 Ponce De Leon Ave NE', 'cinema'],
-  ['Ponce City Market', 33.7726, -84.3655, '675 Ponce De Leon Ave NE', 'food and coffee sweets'],
-  ['Tech Square', 33.7770, -84.3890, '5th St NW', 'food and coffee'],
+  ['Ton Ton Ramen', 33.7726, -84.3655, '675 Ponce De Leon Ave NE', 'noodles sushi', 'ramen counter inside Ponce City Market'],
+  ['Food Terminal', 33.7788, -84.4102, '1000 Marietta St NW', 'noodles', 'Malaysian noodle house on the Westside'],
+  ['Antico Pizza Napoletana', 33.7832, -84.4053, '1093 Hemphill Ave NW', 'pizza', 'Neapolitan pizza a short walk from Georgia Tech'],
+  ['Superica Krog Street', 33.7566, -84.3640, '99 Krog St NE', 'tacos', 'Tex-Mex on the BeltLine at Krog Street Market'],
+  ['Fox Bros Bar-B-Q', 33.7595, -84.3459, '1238 DeKalb Ave NE', 'bbq and wings', "Atlanta's best-known barbecue"],
+  ['Hattie B\'s Hot Chicken', 33.7645, -84.3496, '299 Moreland Ave NE', 'bbq and wings', 'Nashville hot chicken in Little Five Points'],
+  ['The Vortex Midtown', 33.7803, -84.3835, '878 Peachtree St NE', 'burgers', 'burgers behind the giant skull entrance'],
+  ['Dancing Goats Coffee Bar', 33.7723, -84.3660, '650 North Ave NE', 'coffee', 'coffee bar at Ponce City Market'],
+  ['Chrome Yellow Trading Co', 33.7548, -84.3722, '501 Edgewood Ave SE', 'coffee', 'design-forward coffee shop in Old Fourth Ward'],
+  ['Ladybird Grove & Mess Hall', 33.7597, -84.3577, '684 John Wesley Dobbs Ave NE', 'drinks', 'patio bar right on the BeltLine'],
+  ['Jeni\'s Splendid Ice Creams', 33.7847, -84.4118, '1198 Howell Mill Rd NW', 'sweets', 'ice cream at Westside Provisions'],
+  ['Georgia Tech CRC Climbing Wall', 33.7755, -84.4034, '750 Ferst Dr NW', 'climbing gym', 'campus climbing wall in the rec center'],
+  ['Piedmont Park', 33.7851, -84.3738, '400 Park Dr NE', 'park sports', "Atlanta's central park with the skyline view"],
+  ['Atlanta BeltLine Eastside Trail', 33.7700, -84.3630, 'Ponce De Leon Ave NE', 'park', 'the city walking and biking trail'],
+  ['High Museum of Art', 33.7901, -84.3856, '1280 Peachtree St NE', 'art and photo spots', "the Southeast's leading art museum"],
+  ['Jackson Street Bridge', 33.7620, -84.3736, 'Jackson St NE', 'art and photo spots', "the classic Atlanta skyline photo spot"],
+  ['A Cappella Books', 33.7597, -84.3540, '208 Haralson Ave NE', 'bookstore', 'independent bookstore in Inman Park'],
+  ['Joystick Gamebar', 33.7548, -84.3735, '427 Edgewood Ave SE', 'games', 'arcade bar on Edgewood'],
+  ['Variety Playhouse', 33.7645, -84.3496, '1099 Euclid Ave NE', 'music', 'live music venue in Little Five Points'],
+  ['Criminal Records', 33.7645, -84.3500, '1154 Euclid Ave NE', 'music', 'record store in Little Five Points'],
+  ['Plaza Theatre', 33.7728, -84.3550, '1049 Ponce De Leon Ave NE', 'cinema', "Atlanta's oldest independent cinema"],
+  ['Ponce City Market', 33.7726, -84.3655, '675 Ponce De Leon Ave NE', 'food and coffee sweets', 'food hall with a rooftop'],
+  ['Tech Square', 33.7770, -84.3890, '5th St NW', 'food and coffee', 'cafes and restaurants next to Georgia Tech'],
 ];
 
 export function curatedPlaces(kind: string, limit = 6): Place[] {
   const pool = CURATED.filter((c) => c[4].includes(kind));
   const list = pool.length ? pool : CURATED.filter((c) => c[4].includes('food and coffee'));
   return list
-    .map(([name, lat, lon, street], i) => ({
+    .map(([name, lat, lon, street, , why], i) => ({
       id: -1 - i,
       name,
       lat,
@@ -108,6 +109,7 @@ export function curatedPlaces(kind: string, limit = 6): Place[] {
       kind,
       website: null,
       distanceMi: haversineMi(ATLANTA.lat, ATLANTA.lon, lat, lon),
+      why,
     }))
     .sort((a, b) => a.distanceMi - b.distanceMi)
     .slice(0, limit);
@@ -157,6 +159,7 @@ export async function findPlaces(topic: string, radiusM = 3000, limit = 6): Prom
         kind: e.tags?.cuisine ?? e.tags?.amenity ?? e.tags?.leisure ?? e.tags?.tourism ?? e.tags?.shop ?? rule.kind,
         website: e.tags?.website ?? null,
         distanceMi: haversineMi(ATLANTA.lat, ATLANTA.lon, lat, lon),
+        why: `${(e.tags?.cuisine ?? e.tags?.amenity ?? e.tags?.leisure ?? e.tags?.tourism ?? e.tags?.shop ?? rule.kind).replace(/[_;]/g, ' ')} spot near the venue`,
       };
     })
     .filter((p): p is Place => p !== null)

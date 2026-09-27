@@ -69,7 +69,7 @@ export function PlanCard({ plan }: { plan: Plan }) {
         <MiniMap lat={place.lat} lon={place.lon} name={place.name} />
         <div className="p-3">
           <p className="font-pixel text-[10px] tracking-wider uppercase text-[var(--accent)]">
-            Plan · {place.distanceMi.toFixed(1)} mi from Midtown
+            Plan · {place.distanceMi.toFixed(1)} mi from the venue
           </p>
           <p className="mt-1 text-[15px] leading-snug text-[var(--ink)]">{plan.line}</p>
           <p className="mt-1 text-xs text-[var(--muted)]">
