@@ -37,7 +37,6 @@ recent messages and returns three things:
   actually said.
 - **Inclusion notes**: when someone has gone quiet or offered something the group did not pick
   up, the room is told, warmly, so the group can pull them back in.
-
 - **Make a plan**: every bridge suggestion has a button that turns the shared interest into a
   concrete plan nearby. The server maps the topic to OpenStreetMap tags, finds spots within 3 km
   of the venue in Midtown Atlanta, and Muse picks one and writes the invitation: "Priya and
@@ -79,8 +78,8 @@ documentation.
 
 - Muse Spark always reasons before it answers, and reasoning cannot be turned off. My first
   calls burned the whole token budget on thinking and returned empty content. The fix was to
-  set an explicit thinking budget at the minimum of 1024 tokens and give the response 2200
-  tokens total.
+  set an explicit thinking budget at the minimum of 1024 tokens, give the response 4000 tokens
+  of headroom, and retry once if the text block comes back empty.
 - The response puts a `redacted_thinking` block before the text block. Reading `content[0]`
   silently yielded nothing; the parser now finds the first text block and strips any code
   fences before parsing JSON.
