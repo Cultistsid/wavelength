@@ -115,8 +115,10 @@ export function ConnectionGraph() {
       .attr('stroke-width', (d) => 1.5 + d.strength * 3)
       .attr('stroke-linecap', 'round')
       .attr('opacity', 0)
-      .attr('filter', 'url(#wl-glow)');
-    linkPath.transition('fade').duration(600).attr('opacity', 0.9);
+      .attr('filter', 'url(#wl-glow)')
+      .style('transition', 'opacity 600ms ease');
+    // CSS fade instead of a d3 transition: survives Fast Refresh and never leaves a link stuck at 0.
+    requestAnimationFrame(() => linkPath.attr('opacity', 0.9));
 
     const linkLabel = linkG
       .selectAll('text')
@@ -128,10 +130,17 @@ export function ConnectionGraph() {
       .attr('font-size', 11)
       .attr('font-weight', 500)
       .attr('opacity', 0)
-      .style('pointer-events', 'none');
-    linkLabel.transition().delay(300).duration(500).attr('opacity', 0.9);
+      .style('pointer-events', 'none')
+      .style('transition', 'opacity 500ms ease 300ms');
+    requestAnimationFrame(() => linkLabel.attr('opacity', 0.9));
 
-    const radius = (d: Node) => 20 + Math.min(14, d.activity * 2);
+    // Short containers (phones) get smaller nodes and a reserved band under the vibe chip.
+    const small = height < 320;
+    const scale = small ? 0.65 : 1;
+    const radius = (d: Node) => (20 + Math.min(14, d.activity * 2)) * scale;
+    const padX = small ? 34 : 40;
+    const padTop = small ? 62 : 40;
+    const padBottom = small ? 38 : 40;
 
     // The SVG is rebuilt on every update; only nodes seen for the first time get the pop-in.
     const isNew = (d: Node) => !seenRef.current.has(d.id);
@@ -156,15 +165,16 @@ export function ConnectionGraph() {
 
     node.select<SVGCircleElement>('.halo').transition().duration(500).ease(d3.easeBackOut).attr('r', (d) => radius(d) + 10);
     node.select<SVGCircleElement>('.core').transition().duration(500).ease(d3.easeBackOut).attr('r', radius);
-    node.select<SVGTextElement>('text').attr('dy', (d) => radius(d) + 16).transition().duration(400).attr('opacity', 1);
+    node.select<SVGTextElement>('text').attr('dy', (d) => radius(d) + 16).style('transition', 'opacity 400ms ease');
+    requestAnimationFrame(() => node.select<SVGTextElement>('text').attr('opacity', 1));
     for (const n of nodes) seenRef.current.add(n.id);
 
     const sim = d3
       .forceSimulation<Node>(nodes)
-      .force('link', d3.forceLink<Node, Link>(links).id((d) => d.id).distance((d) => 220 - d.strength * 90).strength((d) => 0.2 + d.strength * 0.5))
-      .force('charge', d3.forceManyBody().strength(-420))
+      .force('link', d3.forceLink<Node, Link>(links).id((d) => d.id).distance((d) => (220 - d.strength * 90) * scale).strength((d) => 0.2 + d.strength * 0.5))
+      .force('charge', d3.forceManyBody().strength(-420 * scale))
       .force('center', d3.forceCenter(width / 2, height / 2).strength(0.08))
-      .force('collide', d3.forceCollide<Node>().radius((d) => radius(d) + 28))
+      .force('collide', d3.forceCollide<Node>().radius((d) => radius(d) + 28 * scale))
       .alphaDecay(0.04);
     simRef.current = sim;
 
@@ -191,10 +201,9 @@ export function ConnectionGraph() {
     let raf = 0;
     const draw = () => {
       t += reduceMotion ? 0 : 0.08;
-      const pad = 40;
       for (const n of nodes) {
-        n.x = Math.max(pad, Math.min(width - pad, n.x ?? 0));
-        n.y = Math.max(pad, Math.min(height - pad, n.y ?? 0));
+        n.x = Math.max(padX, Math.min(width - padX, n.x ?? 0));
+        n.y = Math.max(padTop, Math.min(height - padBottom, n.y ?? 0));
       }
       linkPath.attr('d', (d) => {
         const s = d.source as Node;
@@ -251,7 +260,7 @@ export function ConnectionGraph() {
   }, [lastAnalysisAt]);
 
   return (
-    <div className="relative w-full h-full min-h-[240px] overflow-hidden">
+    <div className="relative w-full h-full overflow-hidden">
       <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,rgba(242,233,78,0.06),transparent_60%)]" />
       <svg ref={svgRef} className="relative w-full h-full" />
       {users.length > 0 && connections.length === 0 && (

@@ -85,53 +85,63 @@ export default function RoomPage() {
   return (
     <div className="h-dvh flex flex-col">
       <header className="shrink-0 border-b border-[var(--line)]">
-        <div className="mx-auto max-w-[1440px] px-4 py-3 flex items-center gap-3">
-          <span className="font-pixel text-sm tracking-wider text-[var(--accent)]">WAVELENGTH</span>
+        <div className="mx-auto max-w-[1440px] px-3 sm:px-4 py-2.5 sm:py-3 flex items-center gap-2 sm:gap-3">
+          <span className="font-pixel text-xs sm:text-sm tracking-wider text-[var(--accent)]">WAVELENGTH</span>
           <button
             onClick={() => setQrOpen(true)}
-            className="flex items-center gap-2 border border-[var(--line)] hover:border-[var(--accent)] pl-3 pr-2 py-1 transition-colors"
+            className="flex items-center gap-2 border border-[var(--line)] hover:border-[var(--accent)] pl-2.5 pr-2 py-1 transition-colors"
             aria-label="Show QR code to invite others"
           >
-            <span className="font-pixel text-xs tracking-[0.2em]">{roomId}</span>
+            <span className="font-pixel text-[11px] sm:text-xs tracking-[0.2em]">{roomId}</span>
             <span className="text-[10px] text-[var(--muted)]">INVITE</span>
           </button>
           <span
-            className={`h-1.5 w-1.5 ${connected ? 'bg-[var(--aqua)] shadow-[0_0_8px_var(--aqua)]' : 'bg-[var(--muted)]/40'}`}
+            className={`h-1.5 w-1.5 shrink-0 ${connected ? 'bg-[var(--aqua)] shadow-[0_0_8px_var(--aqua)]' : 'bg-[var(--muted)]/40'}`}
             title={connected ? 'Live' : 'Connecting…'}
           />
           <div className="ml-auto">
             <button
               onClick={requestAnalysis}
               disabled={analyzing || messages.length < 3}
-              className="btn-outline font-pixel text-[11px] tracking-wider px-4 py-2 disabled:opacity-30 disabled:pointer-events-none"
+              className="btn-outline whitespace-nowrap font-pixel text-[10px] sm:text-[11px] tracking-wider px-3 sm:px-4 py-2 disabled:opacity-30 disabled:pointer-events-none"
             >
-              {analyzing ? 'READING…' : 'READ THE ROOM'}
+              <span className="sm:hidden">{analyzing ? 'READING…' : 'READ ROOM'}</span>
+              <span className="hidden sm:inline">{analyzing ? 'READING…' : 'READ THE ROOM'}</span>
             </button>
           </div>
         </div>
       </header>
 
-      <main className="flex-1 min-h-0 mx-auto w-full max-w-[1440px] p-3 sm:p-4 grid gap-3 sm:gap-4 grid-cols-1 grid-rows-[15rem_auto_1fr] lg:grid-cols-12 lg:grid-rows-1">
-        <section className="relative lg:col-span-8 min-h-0 flex flex-col gap-3 sm:gap-4">
-          <div className="flex-1 min-h-0 panel scanlines overflow-hidden">
+      <main className="flex-1 min-h-0 mx-auto w-full max-w-[1440px] p-3 sm:p-4 flex flex-col gap-3 lg:grid lg:grid-cols-12 lg:gap-4">
+        <section className="relative shrink-0 h-48 sm:h-56 lg:h-auto lg:shrink lg:col-span-8 lg:min-h-0 flex flex-col gap-3 sm:gap-4">
+          <div className="relative flex-1 min-h-0 panel scanlines overflow-hidden">
             <WaveField energy={vibeScore / 100} className="absolute inset-x-0 bottom-0 h-1/3 w-full opacity-25 pointer-events-none" />
             <ConnectionGraph />
+            <div className="lg:hidden absolute left-2 top-2 z-10 bg-black/60 backdrop-blur-sm px-2 py-1 border border-[var(--line)]">
+              <VibeScore compact />
+            </div>
           </div>
           <div className="hidden lg:block panel px-5 py-4">
             <VibeScore />
           </div>
         </section>
 
-        <div className="lg:hidden panel px-4 py-3">
-          <VibeScore />
-        </div>
+        <section className="flex-1 min-h-0 lg:col-span-4 flex flex-col gap-3 sm:gap-4">
+          <div className="hidden lg:block">
+            <ParticipantList />
+          </div>
 
-        <section className="lg:col-span-4 min-h-0 flex flex-col gap-3 sm:gap-4">
-          <ParticipantList />
+          {/* Phones: insights as a swipe strip so the chat keeps its height. */}
+          <div className="lg:hidden shrink-0 flex gap-3 overflow-x-auto snap-x snap-mandatory -mx-3 px-3 pb-1 empty:hidden [&>div]:shrink-0 [&>div]:w-[84vw] [&>div]:snap-start [&>div]:max-h-[36vh] [&>div]:overflow-y-auto">
+            <BridgeSuggestions onMakePlan={makePlan} />
+            <InclusionAlerts />
+          </div>
+
           <div className="flex-1 min-h-0">
             <ChatBox onSendMessage={sendMessage} />
           </div>
-          <div className="max-h-[40%] overflow-y-auto space-y-3 pr-1">
+
+          <div className="hidden lg:block max-h-[40%] overflow-y-auto space-y-3 pr-1">
             <BridgeSuggestions onMakePlan={makePlan} />
             <InclusionAlerts />
           </div>

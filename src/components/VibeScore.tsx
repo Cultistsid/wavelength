@@ -8,7 +8,7 @@ import { vibeColor, vibeLabel } from '@/lib/colors';
 const R = 54;
 const CIRC = Math.PI * R;
 
-export function VibeScore() {
+export function VibeScore({ compact = false }: { compact?: boolean }) {
   const vibeScore = useWavelengthStore((s) => s.vibeScore);
   const insight = useWavelengthStore((s) => s.insight);
   const analyzing = useWavelengthStore((s) => s.analyzing);
@@ -29,10 +29,11 @@ export function VibeScore() {
   }, [vibeScore, spring, shown]);
 
   const color = vibeColor(vibeScore);
+  const label = analyzing ? 'Reading the room' : vibeLabel(vibeScore);
 
   return (
-    <div className="flex items-center gap-5">
-      <div className="relative w-[136px] h-[76px] shrink-0">
+    <div className={`flex items-center ${compact ? 'gap-2.5' : 'gap-5'}`}>
+      <div className={`relative shrink-0 ${compact ? 'w-[68px] h-[38px]' : 'w-[136px] h-[76px]'}`}>
         <svg viewBox="0 0 128 72" className="w-full h-full overflow-visible">
           <path d={`M 10 64 A ${R} ${R} 0 0 1 118 64`} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="8" />
           <motion.path
@@ -46,23 +47,25 @@ export function VibeScore() {
           />
         </svg>
         <div className="absolute inset-x-0 bottom-0 text-center leading-none">
-          <span className="font-pixel text-3xl text-white glow-white tabular-nums">{display}</span>
+          <span className={`font-pixel text-white glow-white tabular-nums ${compact ? 'text-base' : 'text-3xl'}`}>{display}</span>
         </div>
       </div>
       <div className="min-w-0">
         <motion.p
-          key={analyzing ? 'reading' : vibeLabel(vibeScore)}
+          key={label}
           initial={{ opacity: 0, y: 4 }}
           animate={{ opacity: 1, y: 0 }}
-          className="font-pixel text-[11px] tracking-wider uppercase"
+          className={`font-pixel tracking-wider uppercase ${compact ? 'text-[9px]' : 'text-[11px]'}`}
           style={{ color, textShadow: `0 0 12px ${color}88` }}
         >
-          {analyzing ? 'Reading the room' : vibeLabel(vibeScore)}
+          {label}
           {analyzing && <span className="caret">_</span>}
         </motion.p>
-        <p className="text-sm text-[var(--muted)] leading-snug mt-1 line-clamp-2">
-          {insight ?? 'Group vibe updates as the conversation moves.'}
-        </p>
+        {!compact && (
+          <p className="text-sm text-[var(--muted)] leading-snug mt-1 line-clamp-2">
+            {insight ?? 'Group vibe updates as the conversation moves.'}
+          </p>
+        )}
       </div>
     </div>
   );

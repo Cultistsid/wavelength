@@ -125,10 +125,21 @@ async function analyzeRoom(roomId: string, force = false): Promise<AnalysisResul
     const nameToId = new Map(room.users.map((u) => [u.name, u.id]));
     const stamp = () => ({ id: crypto.randomUUID(), timestamp: Date.now() });
 
+    // Merge duplicate pairs (A-B and B-A) so the graph draws one wave with one label.
+    const byPair = new Map<string, AnalysisResult['connections'][number]>();
+    for (const c of parsed.connections ?? []) {
+      if (!nameToId.has(c.source) || !nameToId.has(c.target) || c.source === c.target) continue;
+      const key = [c.source, c.target].sort().join('|');
+      const prev = byPair.get(key);
+      if (prev) {
+        prev.strength = Math.max(prev.strength, c.strength);
+        prev.topics = Array.from(new Set([...prev.topics, ...(c.topics ?? [])])).slice(0, 3);
+      } else {
+        byPair.set(key, { ...c, topics: (c.topics ?? []).slice(0, 3) });
+      }
+    }
     const result: AnalysisResult = {
-      connections: (parsed.connections ?? []).filter(
-        (c) => nameToId.has(c.source) && nameToId.has(c.target) && c.source !== c.target
-      ),
+      connections: Array.from(byPair.values()),
       suggestions: (parsed.suggestions ?? []).slice(0, 3).map((s) => ({ ...s, ...stamp() })),
       alerts: (parsed.alerts ?? [])
         .filter((a) => nameToId.has(a.userName))
@@ -284,7 +295,14 @@ io.on('connection', (socket) => {
     const user = room.users.find((u) => u.id === joined!.userId);
     room.users = room.users.filter((u) => u.id !== joined!.userId);
     if (user) io.to(joined.roomId).emit('user-left', user);
-    if (room.users.every(isBot)) rooms.delete(joined.roomId);
+    // Keep a bots-only room alive for a while so a presenter reload doesn't wipe the demo.
+    if (room.users.every(isBot)) {
+      const id = joined.roomId;
+      setTimeout(() => {
+        const r = rooms.get(id);
+        if (r && r.users.every(isBot)) rooms.delete(id);
+      }, 10 * 60 * 1000);
+    }
   });
 });
 
