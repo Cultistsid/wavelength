@@ -41,6 +41,13 @@ npm run dev                  # Next on :3000, socket server on :3001
 Phones must be on the same Wi-Fi as the laptop. Open `http://<laptop-lan-ip>:3000`, not
 `localhost`, before showing the QR so the code encodes an address phones can reach.
 
+## Deploy
+
+- **Socket server → Render** (free): New + Blueprint, pick this repo, `render.yaml` sets it up.
+  Paste `ANTHROPIC_AUTH_TOKEN` when asked. Note the URL, e.g. `https://wavelength-socket.onrender.com`.
+- **Web app → Vercel**: `vercel --prod` with env `NEXT_PUBLIC_SOCKET_URL=<render url>`.
+- Free Render instances sleep after 15 min idle; the first join after that takes ~40 s to wake.
+
 ## Budget guard
 
 Muse always spends reasoning tokens, so the server caps thinking at 1024 tokens, analyzes at
