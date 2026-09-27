@@ -6,11 +6,13 @@ import { useWavelengthStore } from '@/lib/store';
 import { uid } from '@/lib/uid';
 import type { User, Message, AnalysisResult, Plan, BridgeSuggestion } from '@/types';
 
-// Phones joining via QR hit the laptop's LAN IP, so derive the socket host from the page host.
+// Dev: Next on :3000, socket on :3001 (phones hit the laptop's LAN IP, so use the page host).
+// Prod: one server serves both, so the socket is same-origin.
 function socketUrl(): string {
   if (process.env.NEXT_PUBLIC_SOCKET_URL) return process.env.NEXT_PUBLIC_SOCKET_URL;
-  const port = process.env.NEXT_PUBLIC_SOCKET_PORT || '3001';
-  return `${window.location.protocol}//${window.location.hostname}:${port}`;
+  const { protocol, hostname, port, origin } = window.location;
+  if (port === '3000') return `${protocol}//${hostname}:${process.env.NEXT_PUBLIC_SOCKET_PORT || '3001'}`;
+  return origin;
 }
 
 export function useSocket(roomId: string) {

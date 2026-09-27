@@ -1,14 +1,14 @@
 services:
   - type: web
-    name: wavelength-socket
+    name: wavelength
     runtime: node
     plan: free
-    buildCommand: npm ci
-    startCommand: npx tsx server.ts
-    healthCheckPath: /
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start:prod
+    healthCheckPath: /healthz
     envVars:
-      - key: SOCKET_PORT
-        value: 10000
+      - key: NODE_ENV
+        value: production
       - key: ANTHROPIC_BASE_URL
         value: https://api.meta.ai
       - key: ANTHROPIC_AUTH_TOKEN

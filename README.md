@@ -43,10 +43,13 @@ Phones must be on the same Wi-Fi as the laptop. Open `http://<laptop-lan-ip>:300
 
 ## Deploy
 
-- **Socket server → Render** (free): New + Blueprint, pick this repo, `render.yaml` sets it up.
-  Paste `ANTHROPIC_AUTH_TOKEN` when asked. Note the URL, e.g. `https://wavelength-socket.onrender.com`.
-- **Web app → Vercel**: `vercel --prod` with env `NEXT_PUBLIC_SOCKET_URL=<render url>`.
-- Free Render instances sleep after 15 min idle; the first join after that takes ~40 s to wake.
+One Render web service runs both the Next app and the socket server on a single port
+(`server.ts` wraps Next in production).
+
+- Build: `npm ci && npm run build` · Start: `npm run start:prod` · Health: `/healthz`
+- Env: `NODE_ENV=production`, `ANTHROPIC_BASE_URL`, `ANTHROPIC_AUTH_TOKEN`, `MUSE_MODEL`,
+  `MAX_ANALYSES`, `ANALYSIS_MIN_INTERVAL_MS`, `ANALYSIS_EVERY_N_MESSAGES` (see `render.yaml`).
+- Free instances sleep after 15 min idle; the first visit after that takes ~40 s to wake.
 
 ## Budget guard
 

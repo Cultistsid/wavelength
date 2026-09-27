@@ -1,4 +1,5 @@
 import { createServer } from 'http';
+import next from 'next';
 import { Server } from 'socket.io';
 import Anthropic from '@anthropic-ai/sdk';
 import type { User, Message, AnalysisResult } from './src/types';
@@ -159,9 +160,19 @@ async function analyzeRoom(roomId: string, force = false): Promise<AnalysisResul
   }
 }
 
-const httpServer = createServer((_, res) => {
-  res.writeHead(200, { 'Content-Type': 'application/json' });
-  res.end(JSON.stringify({ ok: true, model: MODEL, analysesUsed, maxAnalyses: MAX_ANALYSES }));
+// In production this one process serves the built Next app and the socket on a single port.
+// In development Next runs separately (next dev on :3000) and this process only does sockets.
+const SERVE_NEXT = process.env.NODE_ENV === 'production';
+const nextApp = SERVE_NEXT ? next({ dev: false }) : null;
+const nextHandler = nextApp?.getRequestHandler();
+
+const httpServer = createServer((req, res) => {
+  if (req.url === '/healthz' || !nextHandler) {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ ok: true, model: MODEL, analysesUsed, maxAnalyses: MAX_ANALYSES }));
+    return;
+  }
+  nextHandler(req, res);
 });
 
 const io = new Server(httpServer, { cors: { origin: true, methods: ['GET', 'POST'] } });
@@ -306,6 +317,10 @@ io.on('connection', (socket) => {
   });
 });
 
-httpServer.listen(PORT, '0.0.0.0', () => {
-  console.log(`Wavelength socket server on :${PORT} using ${MODEL}`);
-});
+async function main() {
+  if (nextApp) await nextApp.prepare();
+  httpServer.listen(PORT, '0.0.0.0', () => {
+    console.log(`Wavelength ${SERVE_NEXT ? 'app + socket' : 'socket'} server on :${PORT} using ${MODEL}`);
+  });
+}
+main();

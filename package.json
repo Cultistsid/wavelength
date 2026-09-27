@@ -8,7 +8,9 @@
     "dev:socket": "tsx watch --env-file=.env.local server.ts",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "start:prod": "NODE_ENV=production tsx server.ts",
+    "render-build": "npm run build"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.128.0",
@@ -21,7 +23,8 @@
     "react-dom": "19.2.8",
     "socket.io": "^4.8.4",
     "socket.io-client": "^4.8.4",
-    "zustand": "^5.0.15"
+    "zustand": "^5.0.15",
+    "tsx": "^4.23.15"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -32,7 +35,6 @@
     "eslint": "^9",
     "eslint-config-next": "16.3.6",
     "tailwindcss": "^4",
-    "tsx": "^4.23.15",
     "typescript": "^5"
   }
 }
