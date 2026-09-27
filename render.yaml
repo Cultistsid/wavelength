@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: wavelength-socket
+    runtime: node
+    plan: free
+    buildCommand: npm ci
+    startCommand: npx tsx server.ts
+    healthCheckPath: /
+    envVars:
+      - key: SOCKET_PORT
+        value: 10000
+      - key: ANTHROPIC_BASE_URL
+        value: https://api.meta.ai
+      - key: ANTHROPIC_AUTH_TOKEN
+        sync: false
+      - key: MUSE_MODEL
+        value: muse-spark-1.2
+      - key: MAX_ANALYSES
+        value: 200
+      - key: ANALYSIS_MIN_INTERVAL_MS
+        value: 8000
+      - key: ANALYSIS_EVERY_N_MESSAGES
+        value: 4

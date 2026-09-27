@@ -5,7 +5,7 @@ import type { User, Message, AnalysisResult } from './src/types';
 import { USER_COLORS } from './src/lib/colors';
 import { findPlaces, ATLANTA } from './src/lib/places';
 
-const PORT = Number(process.env.SOCKET_PORT || 3001);
+const PORT = Number(process.env.PORT || process.env.SOCKET_PORT || 3001);
 const MODEL = process.env.MUSE_MODEL || 'muse-spark-1.2';
 const MAX_ANALYSES = Number(process.env.MAX_ANALYSES || 200);
 const MIN_INTERVAL_MS = Number(process.env.ANALYSIS_MIN_INTERVAL_MS || 8000);
