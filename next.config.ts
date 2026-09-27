@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Phones join over the LAN during the demo; the dev server must serve chunks to that origin.
+  allowedDevOrigins: ["192.168.1.199", "192.168.*.*", "10.*.*.*", "172.16.*.*", "*.local"],
 };
 
 export default nextConfig;
