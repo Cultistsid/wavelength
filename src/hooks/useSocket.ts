@@ -37,6 +37,7 @@ export function useSocket(roomId: string) {
     socket.on('new-message', (message: Message) => store.addMessage(message));
     socket.on('analysis-update', (analysis: AnalysisResult) => store.applyAnalysis(analysis));
     socket.on('analysis-skipped', () => store.setAnalyzing(false));
+    socket.on('analysis-started', () => store.setAnalyzing(true));
 
     return () => {
       socket.disconnect();
@@ -64,5 +65,9 @@ export function useSocket(roomId: string) {
     socketRef.current?.emit('request-analysis', { roomId });
   }, [roomId]);
 
-  return { sendMessage, requestAnalysis };
+  const seedDemo = useCallback(() => {
+    socketRef.current?.emit('seed-room', { roomId });
+  }, [roomId]);
+
+  return { sendMessage, requestAnalysis, seedDemo };
 }

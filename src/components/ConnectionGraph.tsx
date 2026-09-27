@@ -44,6 +44,7 @@ export function ConnectionGraph() {
   const users = useWavelengthStore((s) => s.users);
   const connections = useWavelengthStore((s) => s.connections);
   const messages = useWavelengthStore((s) => s.messages);
+  const lastAnalysisAt = useWavelengthStore((s) => s.lastAnalysisAt);
   const simRef = useRef<d3.Simulation<Node, Link> | null>(null);
   const nodesRef = useRef<Map<string, Node>>(new Map());
   const seenRef = useRef<Set<string>>(new Set());
@@ -85,12 +86,16 @@ export function ConnectionGraph() {
 
     svg.selectAll('*').remove();
     const defs = svg.append('defs');
-    const glow = defs.append('filter').attr('id', 'wl-glow').attr('x', '-50%').attr('y', '-50%').attr('width', '200%').attr('height', '200%');
-    glow.append('feGaussianBlur').attr('stdDeviation', 4).attr('result', 'b');
+    // Two-pass bloom: tight core glow plus a wide soft halo.
+    const glow = defs.append('filter').attr('id', 'wl-glow').attr('x', '-60%').attr('y', '-60%').attr('width', '220%').attr('height', '220%');
+    glow.append('feGaussianBlur').attr('in', 'SourceGraphic').attr('stdDeviation', 3).attr('result', 'b1');
+    glow.append('feGaussianBlur').attr('in', 'SourceGraphic').attr('stdDeviation', 10).attr('result', 'b2');
     const merge = glow.append('feMerge');
-    merge.append('feMergeNode').attr('in', 'b');
+    merge.append('feMergeNode').attr('in', 'b2');
+    merge.append('feMergeNode').attr('in', 'b1');
     merge.append('feMergeNode').attr('in', 'SourceGraphic');
 
+    svg.append('g').attr('class', 'pulse-layer');
     const linkG = svg.append('g');
     const nodeG = svg.append('g');
 
@@ -134,8 +139,9 @@ export function ConnectionGraph() {
           .text((d) => d.name)
           .attr('text-anchor', 'middle')
           .attr('fill', '#F3F5FA')
-          .attr('font-size', 12)
-          .attr('font-weight', 600)
+          .attr('font-size', 11)
+          .attr('font-family', 'var(--font-pixel), monospace')
+          .attr('letter-spacing', '0.08em')
           .attr('opacity', (d) => (isNew(d) ? 0 : 1))
           .style('pointer-events', 'none');
         return g;
@@ -202,9 +208,44 @@ export function ConnectionGraph() {
     };
   }, [users, connections, messages]);
 
+  // Analysis sweep: a ring expands from the centre and the links flash white before settling.
+  useEffect(() => {
+    const svgEl = svgRef.current;
+    if (!svgEl || !lastAnalysisAt) return;
+    const svg = d3.select(svgEl);
+    const { width, height } = svgEl.getBoundingClientRect();
+    const layer = svg.select('.pulse-layer');
+    for (const [delay, color] of [[0, '#f2e94e'], [140, '#2dd4bf']] as const) {
+      layer
+        .append('circle')
+        .attr('cx', width / 2)
+        .attr('cy', height / 2)
+        .attr('r', 0)
+        .attr('fill', 'none')
+        .attr('stroke', color)
+        .attr('stroke-width', 2)
+        .attr('opacity', 0.9)
+        .attr('filter', 'url(#wl-glow)')
+        .transition()
+        .delay(delay)
+        .duration(1100)
+        .ease(d3.easeCubicOut)
+        .attr('r', Math.hypot(width, height) / 2)
+        .attr('opacity', 0)
+        .remove();
+    }
+    svg
+      .selectAll<SVGPathElement, Link>('path')
+      .attr('stroke', '#ffffff')
+      .transition()
+      .delay(200)
+      .duration(900)
+      .attr('stroke', (d) => strengthColor(d.strength));
+  }, [lastAnalysisAt]);
+
   return (
-    <div className="relative w-full h-full min-h-[240px] rounded-2xl overflow-hidden bg-[var(--surface)] ring-1 ring-white/5">
-      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,rgba(124,108,255,0.14),transparent_65%)]" />
+    <div className="relative w-full h-full min-h-[240px] overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,rgba(242,233,78,0.06),transparent_60%)]" />
       <svg ref={svgRef} className="relative w-full h-full" />
       {users.length > 0 && connections.length === 0 && (
         <p className="absolute bottom-3 inset-x-0 text-center text-xs text-[var(--muted)]">

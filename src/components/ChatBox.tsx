@@ -30,7 +30,7 @@ export function ChatBox({ onSendMessage }: ChatBoxProps) {
   const colorOf = (userId: string) => users.find((u) => u.id === userId)?.color ?? 'var(--muted)';
 
   return (
-    <div className="flex h-full flex-col rounded-2xl bg-[var(--surface)] ring-1 ring-white/5 overflow-hidden">
+    <div className="flex h-full flex-col panel overflow-hidden">
       <div className="flex-1 overflow-y-auto px-4 py-3 space-y-2.5">
         {messages.length === 0 && (
           <p className="text-sm text-[var(--muted)] pt-2">
@@ -56,8 +56,8 @@ export function ChatBox({ onSendMessage }: ChatBoxProps) {
                   </span>
                 )}
                 <div
-                  className={`max-w-[85%] px-3.5 py-2 text-[15px] leading-snug rounded-2xl ${
-                    mine ? 'bg-[var(--accent)] text-white rounded-br-md' : 'bg-white/[0.07] text-[var(--ink)] rounded-bl-md'
+                  className={`max-w-[85%] px-3.5 py-2 text-[15px] leading-snug ${
+                    mine ? 'bg-[var(--accent)] text-black' : 'bg-white/[0.07] text-[var(--ink)]'
                   }`}
                 >
                   {m.content}
@@ -69,21 +69,21 @@ export function ChatBox({ onSendMessage }: ChatBoxProps) {
         <div ref={endRef} />
       </div>
 
-      <form onSubmit={submit} className="flex gap-2 border-t border-white/5 p-3">
+      <form onSubmit={submit} className="flex gap-2 border-t border-[var(--line)] p-3">
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Message the room"
           maxLength={500}
           autoComplete="off"
-          className="flex-1 min-w-0 rounded-xl bg-white/[0.06] px-4 py-2.5 text-[15px] text-white placeholder:text-[var(--muted)]/70 outline-none focus:ring-2 focus:ring-[var(--accent)] transition-shadow"
+          className="flex-1 min-w-0 border border-[var(--line)] bg-transparent px-4 py-2.5 text-[15px] text-white placeholder:text-[var(--muted)]/70 outline-none focus:border-[var(--accent)] transition-colors"
         />
         <button
           type="submit"
           disabled={!input.trim()}
-          className="rounded-xl bg-[var(--accent)] px-4 text-sm font-medium text-white disabled:opacity-40 hover:brightness-110 active:scale-[0.97] transition"
+          className="btn-outline font-pixel text-[11px] tracking-wider px-4 disabled:opacity-30 disabled:pointer-events-none"
         >
-          Send
+          SEND
         </button>
       </form>
     </div>

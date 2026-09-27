@@ -15,6 +15,13 @@ Built for Meta's "Bringing People Closer Together with AI" hackathon.
    - inclusion notes flag anyone who has gone quiet
    - the vibe gauge tracks the group's overall connection
 
+## Seeded demo
+
+"Watch a seeded demo" on the landing page (or any room URL with `?demo=1`) drops three
+scripted participants into the room, streams eight messages with typing-speed pacing, then runs
+one analysis. The graph is already lit when judges scan in, and because they have not spoken
+yet, the first inclusion note is usually about them.
+
 ## Run it
 
 ```bash

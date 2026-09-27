@@ -21,10 +21,26 @@ interface Room {
   lastAnalysisAt: number;
   analyzedUpTo: number;
   analyzing: boolean;
+  seeded: boolean;
 }
 
 const rooms = new Map<string, Room>();
 let analysesUsed = 0;
+
+// Seeded demo: three "people" already mid-conversation so the graph lights up before judges type.
+const SEED_USERS = ['Maya', 'Jordan', 'Priya'];
+const SEED_SCRIPT: Array<[string, string]> = [
+  ['Maya', 'ok real question: is anyone else here from out of town? I flew in from Austin this morning'],
+  ['Jordan', 'Denver! landed at 6am, running on airport coffee'],
+  ['Maya', 'Austin to Denver is such an easy flight, I go up for ski season every year'],
+  ['Jordan', "no way, I'm at A-Basin most weekends. you should come up in January"],
+  ['Priya', "I've never skied but I shoot a lot of film photography in the mountains, mostly Yosemite"],
+  ['Maya', 'wait Jordan do you still have that ramen spot rec from last time'],
+  ['Jordan', 'Kizuki. get the spicy miso. Maya you owe me one for that'],
+  ['Priya', 'anyway if anyone wants prints from the Yosemite trip let me know'],
+];
+const isBot = (u: User) => u.id.startsWith('bot-');
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 const SYSTEM = `You analyze a live group chat and surface human connection.
 Return ONLY a JSON object, no prose, no code fences:
@@ -52,7 +68,7 @@ function parseJson(text: string): Partial<AnalysisResult> | null {
 function getRoom(roomId: string): Room {
   let room = rooms.get(roomId);
   if (!room) {
-    room = { users: [], messages: [], lastAnalysisAt: 0, analyzedUpTo: 0, analyzing: false };
+    room = { users: [], messages: [], lastAnalysisAt: 0, analyzedUpTo: 0, analyzing: false, seeded: false };
     rooms.set(roomId, room);
   }
   return room;
@@ -74,6 +90,7 @@ async function analyzeRoom(roomId: string, force = false): Promise<AnalysisResul
   room.lastAnalysisAt = now;
   room.analyzedUpTo = room.messages.length;
   analysesUsed++;
+  io.to(roomId).emit('analysis-started');
 
   const counts = new Map<string, number>();
   for (const m of room.messages) counts.set(m.userName, (counts.get(m.userName) ?? 0) + 1);
@@ -162,6 +179,36 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('seed-room', async ({ roomId }: { roomId: string }) => {
+    const room = rooms.get(roomId);
+    if (!room || room.seeded || !joined || joined.roomId !== roomId) return;
+    room.seeded = true;
+
+    for (const name of SEED_USERS) {
+      const taken = new Set(room.users.map((u) => u.color));
+      const user: User = {
+        id: `bot-${name.toLowerCase()}`,
+        name,
+        color: USER_COLORS.find((c) => !taken.has(c)) ?? USER_COLORS[room.users.length % USER_COLORS.length],
+        joinedAt: Date.now(),
+      };
+      room.users.push(user);
+      io.to(roomId).emit('user-joined', user);
+      await sleep(350);
+    }
+
+    for (const [name, content] of SEED_SCRIPT) {
+      const user = room.users.find((u) => u.name === name)!;
+      const message: Message = { id: crypto.randomUUID(), userId: user.id, userName: name, content, timestamp: Date.now() };
+      room.messages.push(message);
+      io.to(roomId).emit('new-message', message);
+      await sleep(900);
+    }
+
+    const analysis = await analyzeRoom(roomId, true);
+    if (analysis) io.to(roomId).emit('analysis-update', analysis);
+  });
+
   socket.on('request-analysis', async ({ roomId }: { roomId: string }) => {
     const analysis = await analyzeRoom(roomId, true);
     if (analysis) io.to(roomId).emit('analysis-update', analysis);
@@ -175,7 +222,7 @@ io.on('connection', (socket) => {
     const user = room.users.find((u) => u.id === joined!.userId);
     room.users = room.users.filter((u) => u.id !== joined!.userId);
     if (user) io.to(joined.roomId).emit('user-left', user);
-    if (room.users.length === 0) rooms.delete(joined.roomId);
+    if (room.users.every(isBot)) rooms.delete(joined.roomId);
   });
 });
 

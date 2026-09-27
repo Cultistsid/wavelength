@@ -12,6 +12,7 @@ interface WavelengthStore {
   insight: string | null;
   analyzing: boolean;
   connected: boolean;
+  lastAnalysisAt: number;
 
   setCurrentUser: (user: User | null) => void;
   setConnected: (connected: boolean) => void;
@@ -38,6 +39,7 @@ const initialState = {
   insight: null,
   analyzing: false,
   connected: false,
+  lastAnalysisAt: 0,
 };
 
 const mergeById = <T extends { id: string }>(existing: T[], incoming: T[]): T[] => {
@@ -68,6 +70,7 @@ export const useWavelengthStore = create<WavelengthStore>((set) => ({
       vibeScore: a.vibeScore,
       insight: a.insights[0] ?? null,
       analyzing: false,
+      lastAnalysisAt: Date.now(),
     }),
 
   dismissSuggestion: (id) => set((s) => ({ suggestions: s.suggestions.filter((x) => x.id !== id) })),

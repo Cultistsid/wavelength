@@ -5,3 +5,4 @@ export { BridgeSuggestions } from './BridgeSuggestions';
 export { InclusionAlerts } from './InclusionAlerts';
 export { ParticipantList } from './ParticipantList';
 export { QRPanel } from './QRPanel';
+export { WaveField } from './WaveField';
