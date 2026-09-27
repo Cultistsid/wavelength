@@ -28,7 +28,7 @@ export default function RoomPage() {
   const messages = useWavelengthStore((s) => s.messages);
   const vibeScore = useWavelengthStore((s) => s.vibeScore);
   const setCurrentUser = useWavelengthStore((s) => s.setCurrentUser);
-  const { sendMessage, requestAnalysis, seedDemo } = useSocket(roomId);
+  const { sendMessage, requestAnalysis, seedDemo, makePlan } = useSocket(roomId);
 
   useEffect(() => {
     if (!connected || seededRef.current) return;
@@ -131,7 +131,7 @@ export default function RoomPage() {
             <ChatBox onSendMessage={sendMessage} />
           </div>
           <div className="max-h-[40%] overflow-y-auto space-y-3 pr-1">
-            <BridgeSuggestions />
+            <BridgeSuggestions onMakePlan={makePlan} />
             <InclusionAlerts />
           </div>
         </section>

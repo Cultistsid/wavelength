@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { User, Message, Connection, BridgeSuggestion, InclusionAlert, AnalysisResult } from '@/types';
+import type { User, Message, Connection, BridgeSuggestion, InclusionAlert, AnalysisResult, Plan } from '@/types';
 
 interface WavelengthStore {
   currentUser: User | null;
@@ -13,7 +13,11 @@ interface WavelengthStore {
   analyzing: boolean;
   connected: boolean;
   lastAnalysisAt: number;
+  plans: Record<string, Plan>;
+  planning: Record<string, boolean>;
 
+  setPlan: (plan: Plan) => void;
+  setPlanning: (suggestionId: string, planning: boolean) => void;
   setCurrentUser: (user: User | null) => void;
   setConnected: (connected: boolean) => void;
   setAnalyzing: (analyzing: boolean) => void;
@@ -40,6 +44,8 @@ const initialState = {
   analyzing: false,
   connected: false,
   lastAnalysisAt: 0,
+  plans: {},
+  planning: {},
 };
 
 const mergeById = <T extends { id: string }>(existing: T[], incoming: T[]): T[] => {
@@ -50,6 +56,12 @@ const mergeById = <T extends { id: string }>(existing: T[], incoming: T[]): T[] 
 export const useWavelengthStore = create<WavelengthStore>((set) => ({
   ...initialState,
 
+  setPlan: (plan) =>
+    set((s) => ({
+      plans: { ...s.plans, [plan.suggestionId]: plan },
+      planning: { ...s.planning, [plan.suggestionId]: false },
+    })),
+  setPlanning: (id, planning) => set((s) => ({ planning: { ...s.planning, [id]: planning } })),
   setCurrentUser: (currentUser) => set({ currentUser }),
   setConnected: (connected) => set({ connected }),
   setAnalyzing: (analyzing) => set({ analyzing }),

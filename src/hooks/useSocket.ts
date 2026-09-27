@@ -3,7 +3,7 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useWavelengthStore } from '@/lib/store';
-import type { User, Message, AnalysisResult } from '@/types';
+import type { User, Message, AnalysisResult, Plan, BridgeSuggestion } from '@/types';
 
 // Phones joining via QR hit the laptop's LAN IP, so derive the socket host from the page host.
 function socketUrl(): string {
@@ -37,7 +37,10 @@ export function useSocket(roomId: string) {
     socket.on('new-message', (message: Message) => store.addMessage(message));
     socket.on('analysis-update', (analysis: AnalysisResult) => store.applyAnalysis(analysis));
     socket.on('analysis-skipped', () => store.setAnalyzing(false));
+    socket.on('analysis-done', () => store.setAnalyzing(false));
     socket.on('analysis-started', () => store.setAnalyzing(true));
+    socket.on('plan-ready', (plan: Plan) => store.setPlan(plan));
+    socket.on('plan-failed', ({ suggestionId }: { suggestionId: string }) => store.setPlanning(suggestionId, false));
 
     return () => {
       socket.disconnect();
@@ -63,11 +66,22 @@ export function useSocket(roomId: string) {
   const requestAnalysis = useCallback(() => {
     useWavelengthStore.getState().setAnalyzing(true);
     socketRef.current?.emit('request-analysis', { roomId });
+    // Safety net so a dropped response can never leave the button stuck on "Reading…".
+    setTimeout(() => useWavelengthStore.getState().setAnalyzing(false), 20000);
   }, [roomId]);
 
   const seedDemo = useCallback(() => {
     socketRef.current?.emit('seed-room', { roomId });
   }, [roomId]);
 
-  return { sendMessage, requestAnalysis, seedDemo };
+  const makePlan = useCallback(
+    (s: BridgeSuggestion) => {
+      useWavelengthStore.getState().setPlanning(s.id, true);
+      socketRef.current?.emit('make-plan', { roomId, suggestionId: s.id, topic: s.topic, users: s.users, suggestion: s.suggestion });
+      setTimeout(() => useWavelengthStore.getState().setPlanning(s.id, false), 30000);
+    },
+    [roomId]
+  );
+
+  return { sendMessage, requestAnalysis, seedDemo, makePlan };
 }

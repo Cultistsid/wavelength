@@ -46,6 +46,21 @@ export interface RoomState {
   vibeScore: number; // 0-100
 }
 
+export interface PlanPlace {
+  name: string;
+  lat: number;
+  lon: number;
+  street: string | null;
+  distanceMi: number;
+}
+
+export interface Plan {
+  suggestionId: string;
+  place: PlanPlace;
+  line: string;
+  source: 'osm' | 'curated';
+}
+
 export interface AnalysisResult {
   connections: Connection[];
   suggestions: BridgeSuggestion[];

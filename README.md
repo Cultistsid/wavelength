@@ -15,6 +15,14 @@ Built for Meta's "Bringing People Closer Together with AI" hackathon.
    - inclusion notes flag anyone who has gone quiet
    - the vibe gauge tracks the group's overall connection
 
+## Make a plan
+
+Every bridge suggestion has a "Make a plan nearby" button. The server maps the shared topic to
+OpenStreetMap tags, queries Overpass for spots within 3 km of Midtown Atlanta (hard-coded to the
+hackathon venue), and asks Muse to pick one and write a one-line invitation. If Overpass is slow
+or empty it falls back to a curated list of real Atlanta spots, so a plan always lands. The card
+shows a dark-styled OSM tile map with the spot centred and an "Open in Maps" link.
+
 ## Seeded demo
 
 "Watch a seeded demo" on the landing page (or any room URL with `?demo=1`) drops three

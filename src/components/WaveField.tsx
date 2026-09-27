@@ -64,7 +64,7 @@ export function WaveField({ energy = 0.5, className = '' }: WaveFieldProps) {
         }
         ctx.strokeStyle = color;
         ctx.lineWidth = 2;
-        ctx.shadowBlur = 18;
+        ctx.shadowBlur = w < 640 ? 8 : 18;
         ctx.shadowColor = color;
         ctx.globalAlpha = 0.85 - i * 0.15;
         ctx.stroke();

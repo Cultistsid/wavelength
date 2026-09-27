@@ -43,7 +43,12 @@ export function ConnectionGraph() {
   const svgRef = useRef<SVGSVGElement>(null);
   const users = useWavelengthStore((s) => s.users);
   const connections = useWavelengthStore((s) => s.connections);
-  const messages = useWavelengthStore((s) => s.messages);
+  // Rebuild only when per-user message counts change, not on every message object.
+  const activityKey = useWavelengthStore((s) => {
+    const counts = new Map<string, number>();
+    for (const m of s.messages) counts.set(m.userId, (counts.get(m.userId) ?? 0) + 1);
+    return s.users.map((u) => `${u.id}:${counts.get(u.id) ?? 0}`).join('|');
+  });
   const lastAnalysisAt = useWavelengthStore((s) => s.lastAnalysisAt);
   const simRef = useRef<d3.Simulation<Node, Link> | null>(null);
   const nodesRef = useRef<Map<string, Node>>(new Map());
@@ -56,8 +61,10 @@ export function ConnectionGraph() {
     const { width, height } = svgEl.getBoundingClientRect();
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    const counts = new Map<string, number>();
-    for (const m of messages) counts.set(m.userId, (counts.get(m.userId) ?? 0) + 1);
+    const counts = new Map(activityKey.split('|').filter(Boolean).map((p) => {
+      const i = p.lastIndexOf(':');
+      return [p.slice(0, i), Number(p.slice(i + 1))] as const;
+    }));
 
     // Keep node positions across re-renders so the graph never jumps.
     const nodes: Node[] = users.map((u) => {
@@ -109,7 +116,7 @@ export function ConnectionGraph() {
       .attr('stroke-linecap', 'round')
       .attr('opacity', 0)
       .attr('filter', 'url(#wl-glow)');
-    linkPath.transition().duration(600).attr('opacity', 0.9);
+    linkPath.transition('fade').duration(600).attr('opacity', 0.9);
 
     const linkLabel = linkG
       .selectAll('text')
@@ -206,7 +213,7 @@ export function ConnectionGraph() {
       cancelAnimationFrame(raf);
       sim.stop();
     };
-  }, [users, connections, messages]);
+  }, [users, connections, activityKey]);
 
   // Analysis sweep: a ring expands from the centre and the links flash white before settling.
   useEffect(() => {
@@ -237,7 +244,7 @@ export function ConnectionGraph() {
     svg
       .selectAll<SVGPathElement, Link>('path')
       .attr('stroke', '#ffffff')
-      .transition()
+      .transition('flash')
       .delay(200)
       .duration(900)
       .attr('stroke', (d) => strengthColor(d.strength));
