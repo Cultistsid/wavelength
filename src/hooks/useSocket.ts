@@ -3,6 +3,7 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useWavelengthStore } from '@/lib/store';
+import { uid } from '@/lib/uid';
 import type { User, Message, AnalysisResult, Plan, BridgeSuggestion } from '@/types';
 
 // Phones joining via QR hit the laptop's LAN IP, so derive the socket host from the page host.
@@ -52,7 +53,7 @@ export function useSocket(roomId: string) {
     (content: string) => {
       if (!socketRef.current || !currentUser) return;
       const message: Message = {
-        id: crypto.randomUUID(),
+        id: uid(),
         userId: currentUser.id,
         userName: currentUser.name,
         content,

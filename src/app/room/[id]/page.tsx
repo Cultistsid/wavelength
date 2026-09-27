@@ -15,6 +15,7 @@ import {
   WaveField,
 } from '@/components';
 import { getRandomColor } from '@/lib/colors';
+import { uid } from '@/lib/uid';
 
 export default function RoomPage() {
   const roomId = (useParams().id as string).toUpperCase();
@@ -42,7 +43,7 @@ export default function RoomPage() {
     e.preventDefault();
     if (!name.trim()) return;
     setCurrentUser({
-      id: crypto.randomUUID(),
+      id: uid(),
       name: name.trim().slice(0, 24),
       color: getRandomColor(),
       joinedAt: Date.now(),
